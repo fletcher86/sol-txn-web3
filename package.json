@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node app/GetSolTxns.ts"
+    "start": "ts-node app/app.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +14,11 @@
     "@solana/web3.js": "^1.77.3",
     "bs58": "^5.0.0",
     "date-fns": "^2.30.0",
+    "https": "^1.0.0",
+    "jackson-js": "^1.1.0",
+    "json5": "^2.2.3",
     "mysql": "^2.18.1",
+    "node-fetch": "^3.3.1",
     "sync-request": "^6.1.0"
   },
   "devDependencies": {
