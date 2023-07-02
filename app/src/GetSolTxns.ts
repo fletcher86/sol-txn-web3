@@ -1,16 +1,12 @@
-import fs from 'fs';
+import * as fs from 'fs';
 import request from 'sync-request';
-import {PersistenceService} from './PersistenceService';
-import {Connection, clusterApiUrl, Keypair, PublicKey} from '@solana/web3.js';
-import {Metaplex, keypairIdentity} from "@metaplex-foundation/js";
-import fetch from 'node-fetch';
+import {PersistenceService} from './service/PersistenceService';
 import {parse} from 'json5';
 import {SolRequest} from './model/signaturesforaddress/request/SolRequest';
-import https, {IncomingMessage} from 'https';
-import {SolTxnResponse1} from "./model/signaturesforaddress/response/SolTxnResponse1";
 import {sleep} from "./util/Sleep";
 import SerdeUtil from "./util/SerdeUtil";
 import {SolTxnResponse2} from "./model/transactions/response/SolTxnResponse2";
+import SolanaService from "./service/SolanaService";
 
 
 export class GetSolTxns {
@@ -47,34 +43,23 @@ export class GetSolTxns {
     }
 
 
-// Function Definition
     async getTxns(address: string): Promise<string> {
-        let response = "";
-        let params: string[] = [address];
-        let methodName = "getSignaturesForAddress";
 
-        let solRequest: SolRequest = {
-            jsonrpc: '2.0',
-            id: '1',
-            method: methodName,
-            params: params
-        }
-
-        let solRequestStr = JSON.stringify(solRequest);
+        let response: string;
         let txnFile = 'sol-txns.json';
 
         if (!fs.existsSync(txnFile) || fs.readFileSync(txnFile, 'utf8').length === 0) {
-            let rawUnformattedTxnJson = this.executeSolRequest(solRequestStr);
+            let rawUnformattedTxnJson = await SolanaService.getSignaturesForAddress(address);
             let txnObj = parse(rawUnformattedTxnJson);
             let prettyTxnList = JSON.stringify(txnObj, null, 2);
             fs.writeFileSync(txnFile, prettyTxnList);
             let solTxns = parse(fs.readFileSync(txnFile, 'utf8'));
             this.saveTxnsInDb(solTxns);
+            response = solTxns
         } else {
             let solTxns = parse(fs.readFileSync(txnFile, 'utf8'));
-            response = fs.readFileSync(txnFile, 'utf8');
             this.saveTxnsInDb(solTxns);
-            console.info("");
+            response = solTxns
         }
 
         return response;
@@ -119,7 +104,7 @@ export class GetSolTxns {
         let rawTxnDetails: string | null = this.persistenceService.selectRawTransactionString(signature);
 
         if (!rawTxnDetails) {
-            const res: string = await this.executeSolRequest(solRequestStr);
+            const res: string = await SolanaService.getParseTransaction(signature);
             this.persistenceService.insertRawTxnDataStr(res, signature);
             console.log("Sleeping 10 sec"); // sleep so we don't get rate limited
             const r: SolTxnResponse2 = SerdeUtil.convertStringToSolTxnResponse(res);
@@ -130,27 +115,5 @@ export class GetSolTxns {
             this.persistenceService.updateTxnDetails(r, signature);
         }
     }
-
-
-    executeSolRequest(solRequestStr: string): string {
-        const options = {
-            hostname: 'api.mainnet-beta.solana.com',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
-
-        const response = https.request(options);
-        response.write(solRequestStr);
-        response.end();
-
-        // Synchronously wait for the response
-        const res = response.;
-        const responseBody = res.getBody('utf8');
-
-        return responseBody;
-    }
-
-
 }
+export default GetSolTxns;

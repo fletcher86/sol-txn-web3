@@ -1,0 +1,12 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "scripts": {
+    "app": "node ./src/app.ts"
+  },
+  "bundleDependencies": [
+    "next"
+  ]
+}

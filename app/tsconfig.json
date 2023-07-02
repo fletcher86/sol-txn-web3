@@ -1,0 +1,17 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "module": "commonjs",
+  "target": "es5",
+  "sourceMap": true,
+  "compilerOptions": {
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "esModuleInterop": true,
+
+  }
+}

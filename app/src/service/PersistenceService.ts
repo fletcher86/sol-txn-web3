@@ -1,7 +1,7 @@
 import {createConnection, Connection, MysqlError, FieldInfo, Query} from 'mysql';
-import {SolTxnResponse2} from "./model/transactions/response/SolTxnResponse2";
+import {SolTxnResponse2} from "../model/transactions/response/SolTxnResponse2";
 import {format} from 'date-fns';
-import {SolTxnResponse1} from "./model/signaturesforaddress/response/SolTxnResponse1";
+import {SolTxnResponse1} from "../model/signaturesforaddress/response/SolTxnResponse1";
 
 // import {format, fromUnixTime} from 'date-fns';
 

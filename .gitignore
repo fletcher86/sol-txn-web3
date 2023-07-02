@@ -1,6 +1,11 @@
+.DS_Store
+
 node_modules/
 *.txt
 
 .idea/
 
 package-lock.json
+
+sol-txns.json
+token-list.json
