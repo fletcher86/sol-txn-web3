@@ -7,5 +7,6 @@ node_modules/
 
 package-lock.json
 
+app/**/*.js
 sol-txns.json
 token-list.json

@@ -7,6 +7,7 @@ import {sleep} from "./util/Sleep";
 import SerdeUtil from "./util/SerdeUtil";
 import {SolTxnResponse2} from "./model/transactions/response/SolTxnResponse2";
 import SolanaService from "./service/SolanaService";
+import {SolTxn} from "./model/signaturesforaddress/response/SolTxn";
 
 
 export class GetSolTxns {
@@ -53,9 +54,9 @@ export class GetSolTxns {
             let txnObj = parse(rawUnformattedTxnJson);
             let prettyTxnList = JSON.stringify(txnObj, null, 2);
             fs.writeFileSync(txnFile, prettyTxnList);
-            let solTxns = parse(fs.readFileSync(txnFile, 'utf8'));
+            let solTxns: SolTxn[] = JSON.parse(rawUnformattedTxnJson) as SolTxn[];
             this.saveTxnsInDb(solTxns);
-            response = solTxns
+            response = prettyTxnList
         } else {
             let solTxns = parse(fs.readFileSync(txnFile, 'utf8'));
             this.saveTxnsInDb(solTxns);
@@ -66,11 +67,12 @@ export class GetSolTxns {
     }
 
 
-    async saveTxnsInDb(slurpedJson: SlurpedJson) {
-        for (const res of slurpedJson.result) {
-            const blockTime = res.blockTime;
-            const signature = res.signature;
-            const slot = res.slot;
+    async saveTxnsInDb(solTxns: SolTxn[]) {
+
+        solTxns.forEach(txn => {
+            const slot = Number(txn.bslot);
+            const blockTime = Number(txn.blockTime);
+            const signature = txn.bsignature;
             const utc = blockTime * 1000;
             const ldt = new Date(utc);
 
@@ -87,7 +89,7 @@ export class GetSolTxns {
 
                 console.log("persisting raw details.");
             }
-        }
+        });
         this.persistenceService.close();
     }
 
@@ -116,4 +118,5 @@ export class GetSolTxns {
         }
     }
 }
+
 export default GetSolTxns;
